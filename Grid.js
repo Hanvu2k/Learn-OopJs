@@ -36,25 +36,7 @@ class Grid {
       this.displayGrid();
       const response = await PlayerPrompts();
 
-      switch (response) {
-        case "Up": {
-          this.movePlayerUp();
-          break;
-        }
-        case "Down": {
-          this.movePlayerDown();
-          break;
-        }
-        case "Left": {
-          this.movePlayerLeft();
-          break;
-        }
-        case "Right": {
-          this.movePlayerRight();
-          break;
-        }
-      }
-
+      this.directMovement(response);
       console.log("__________________________________________________");
     }
   }
@@ -149,94 +131,58 @@ class Grid {
     this.player.describe();
   }
 
-  movePlayerRight() {
-    // check if the player is at the right edge
-    if (this.playerX === this.width - 1) {
-      console.log("Can't move right, at edge");
-      return;
+  directMovement(direct) {
+    switch (direct) {
+      case "Up": {
+        if (this.playerY === 0) {
+          console.log("Can't move up, at edge");
+          return;
+        }
+        this.grid[this.playerY][this.playerX] = new GridObject(
+          "👣",
+          "discover"
+        );
+        this.playerY -= 1;
+        break;
+      }
+      case "Down": {
+        if (this.playerY === this.height - 1) {
+          console.log("Can't move down, at edge");
+          return;
+        }
+        this.grid[this.playerY][this.playerX] = new GridObject(
+          "👣",
+          "discover"
+        );
+        this.playerY += 1;
+        break;
+      }
+      case "Left": {
+        if (this.playerX === 0) {
+          console.log("Can't move left, at edge");
+          return;
+        }
+        this.grid[this.playerY][this.playerX] = new GridObject(
+          "👣",
+          "discover"
+        );
+        this.playerX -= 1;
+        break;
+      }
+      case "Right": {
+        if (this.playerX === this.width - 1) {
+          console.log("Can't move right, at edge");
+          return;
+        }
+        this.grid[this.playerY][this.playerX] = new GridObject(
+          "👣",
+          "discover"
+        );
+        this.playerX += 1;
+        break;
+      }
     }
 
-    // set current position to discovered
-    this.grid[this.playerY][this.playerX] = new GridObject("👣", "discover");
-    // move the player to the right
-    this.playerX += 1;
-
-    // check if where we're moving to has been discoverd already
-    if (this.grid[this.playerY][this.playerX].type === "discover") {
-      this.grid[this.playerY][this.playerX].describe();
-      this.grid[this.playerY][this.playerX] = new GridObject("🙊");
-      return;
-    }
-
-    // discovering a new place
-    this.#currentObject = this.generateGridObject();
-    this.executeTurn();
-    this.grid[this.playerY][this.playerX] = new GridObject("🙊");
-  }
-
-  movePlayerLeft() {
-    // check if the player is at the left edge
-    if (this.playerX === 0) {
-      console.log("Can't move left, at edge");
-      return;
-    }
-
-    // set current position to discovered
-    this.grid[this.playerY][this.playerX] = new GridObject("👣", "discover");
-    // move the player to the left
-    this.playerX -= 1;
-
-    // check if where we're moving to has been discoverd already
-    if (this.grid[this.playerY][this.playerX].type === "discover") {
-      this.grid[this.playerY][this.playerX].describe();
-      this.grid[this.playerY][this.playerX] = new GridObject("🙊");
-      return;
-    }
-
-    // discovering a new place
-    this.#currentObject = this.generateGridObject();
-    this.executeTurn();
-    this.grid[this.playerY][this.playerX] = new GridObject("🙊");
-  }
-
-  movePlayerUp() {
-    // check if the player is at the up edge
-    if (this.playerY === 0) {
-      console.log("Can't move up, at edge");
-      return;
-    }
-
-    // set current position to discovered
-    this.grid[this.playerY][this.playerX] = new GridObject("👣", "discover");
-    // move the player to the left
-    this.playerY -= 1;
-
-    // check if where we're moving to has been discoverd already
-    if (this.grid[this.playerY][this.playerX].type === "discover") {
-      this.grid[this.playerY][this.playerX].describe();
-      this.grid[this.playerY][this.playerX] = new GridObject("🙊");
-      return;
-    }
-
-    // discovering a new place
-    this.#currentObject = this.generateGridObject();
-    this.executeTurn();
-    this.grid[this.playerY][this.playerX] = new GridObject("🙊");
-  }
-
-  movePlayerDown() {
-    // check if the player is at the bottom edge
-    if (this.playerY === this.height - 1) {
-      console.log("Can't move down, at edge");
-      return;
-    }
-
-    // set current position to discovered
-    this.grid[this.playerY][this.playerX] = new GridObject("👣", "discover");
-    // move the player to the left
-    this.playerY += 1;
-
-    // check if where we're moving to has been discoverd already
     if (this.grid[this.playerY][this.playerX].type === "discover") {
       this.grid[this.playerY][this.playerX].describe();
       this.grid[this.playerY][this.playerX] = new GridObject("🙊");
