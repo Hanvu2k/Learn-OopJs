@@ -1,130 +1,169 @@
 const app = document.querySelector("#app");
+class Animation {
+  #canvas = document.createElement("canvas");
+  #ctx = this.#canvas.getContext("2d");
+  #count = 0;
+  #posX = 0;
+  #posY = 0;
+  #currentPos = 0;
+  #secondsToUpdate = 20;
 
-class Character {
-  #height = 300;
-  #width = 300;
-  #left = 50;
-  #char = document.createElement("div");
+  #actionFrame = {
+    name: "",
+    frameIndex: 1,
+    frameLength: 0,
+    frame: 1,
+  };
 
-  constructor(image) {
-    this.image = image;
+  constructor(imgSrc, height, width) {
+    this.CANVAS_WIDTH = this.#canvas.width = width;
+    this.CANVAS_HEIGHT = this.#canvas.height = height;
+    this.spriteWidth = 1024;
+    this.spriteHeight = 830;
+    this.img = new Image();
+    this.img.src = imgSrc;
   }
 
   createCharacter() {
-    this.#char.style.height = this.#height + "px";
-    this.#char.style.width = this.#width + "px";
-    this.#char.style.backgroundImage = "url(" + this.image + ")";
-    this.#char.style.backgroundSize = "cover";
-    this.#char.style.position = "absolute";
-    this.#char.style.top = "50%";
-    this.#char.style.left = `${this.#left}%`;
-    this.#char.style.transform = "translate(-50%, -50%)";
-
-    return this.#char;
+    app.appendChild(this.#canvas);
   }
 
-  move(action) {
-    this.#char.style.backgroundImage = "url()";
-    this.#char.style.animation = `${action.name} ${action.time}s cubic-bezier(0.075, 0.82, 0.165, 2) infinite forwards`;
+  characterAction(action) {
+    if (!action) return (this.#actionFrame.name = "");
+    this.#actionFrame.name = action;
   }
 
-  stop() {
-    this.#char.style.backgroundImage = "url(" + this.image + ")";
-    this.#char.style.animation = "";
-  }
-}
-
-// action
-class ActionCharacter {
-  constructor(images, name, time) {
-    this.images = images || [];
-    this.name = name;
-    this.time = time;
-
-    this.createKeyframes();
-  }
-
-  #actionKeyFrame() {
-    let keyFramesContent = "";
-    let increment = 0;
-
-    for (let img of this.images) {
-      keyFramesContent += ` ${increment}% { background-image: url('${img}'); }`;
-      increment += 100 / this.images.length;
+  animate() {
+    switch (this.#actionFrame.name) {
+      case "WalkRight": {
+        this.#posX += 1;
+        this.#actionFrame.frame = 0;
+        this.#actionFrame.frameLength = 3;
+        if (this.#posX >= this.CANVAS_WIDTH) this.#posX = 0;
+        this.#currentPos = this.#posX;
+        break;
+      }
+      case "WalkLeft": {
+        this.posX = this.#currentPos - 1;
+        this.#actionFrame.frame = 4;
+        this.#actionFrame.frameLength = 3;
+        break;
+      }
+      case "Attack": {
+        this.#secondsToUpdate = 18;
+        this.#actionFrame.frame = 1;
+        this.#actionFrame.frameLength = 5;
+        break;
+      }
+      case "AttackLeft": {
+        this.#actionFrame.frame = 5;
+        this.#actionFrame.frameLength = 5;
+        break;
+      }
+      case "AttackMoveRight": {
+        this.#posX += 1;
+        this.#actionFrame.frame = 1;
+        this.#actionFrame.frameLength = 5;
+        if (this.#posX >= this.CANVAS_WIDTH) this.#posX = 0;
+        break;
+      }
+      case "Jump": {
+        this.#secondsToUpdate = 20;
+        this.#posX += 4;
+        this.#actionFrame.frame = 2;
+        this.#actionFrame.frameLength = 8;
+        if (this.#posX >= this.CANVAS_WIDTH) this.#posX = 0;
+        break;
+      }
+      case "Dash": {
+        this.#secondsToUpdate = 50;
+        this.#posX += 3;
+        this.#actionFrame.frame = 3;
+        this.#actionFrame.frameLength = 6;
+        if (this.#posX >= this.CANVAS_WIDTH) this.#posX = 0;
+        break;
+      }
+      default: {
+        this.#actionFrame.frame = 2;
+        this.#actionFrame.frameLength = 1;
+      }
     }
 
-    return `
-      @keyframes ${this.name} {
-        ${keyFramesContent}
-      }
-    `;
+    const scaledSpriteWidth =
+      this.spriteWidth * (this.CANVAS_HEIGHT / this.spriteHeight);
+    const scaledSpriteHeight = this.CANVAS_HEIGHT;
+
+    this.#ctx.drawImage(
+      this.img,
+      this.spriteWidth * this.#actionFrame.frameIndex,
+      this.spriteHeight * this.#actionFrame.frame,
+      this.spriteWidth,
+      this.spriteHeight,
+      this.#posX,
+      this.#posY,
+      scaledSpriteWidth,
+      scaledSpriteHeight
+    );
+
+    this.#count++;
+    if (this.#count > this.#secondsToUpdate) {
+      this.#actionFrame.frameIndex++;
+      this.#count = 0;
+    }
+
+    if (this.#actionFrame.frameIndex >= this.#actionFrame.frameLength) {
+      this.#actionFrame.frameIndex = 0;
+    }
   }
 
-  createKeyframes() {
-    const styleElement = document.createElement("style");
-    document.head.appendChild(styleElement);
-    styleElement.sheet.insertRule(this.#actionKeyFrame(), 0);
+  frame() {
+    this.#ctx.clearRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+    this.animate();
+    requestAnimationFrame(this.frame.bind(this));
+  }
+
+  start() {
+    this.frame();
   }
 }
 
-const character = new Character("./img/runToRight/right1.png");
-const moveRight = new ActionCharacter(
-  [
-    "./img/runRight/run1.png",
-    "./img/runRight/run2.png",
-    "./img/runRight/run3.png",
-    "./img/runRight/run4.png",
-    "./img/runRight/run5.png",
-    "./img/runRight/run6.png",
-  ],
-  "runRight",
-  0.8
-);
+const character = new Animation("./img/spi/sprite2.png", 625, 1500);
+character.createCharacter();
+character.start();
 
-const walkRight = new ActionCharacter(
-  [
-    "./img/runToRight/right2.png",
-    "./img/runToRight/right3.png",
-    "./img/runToRight/right4.png",
-    "./img/runToRight/right5.png",
-    "./img/runToRight/right6.png",
-  ],
-  "walkRight",
-  1
-);
+let keysPressed = {};
 
-const jump = new ActionCharacter(
-  [
-    "./img/jump/jum1.png",
-    "./img/jump/jum2.png",
-    "./img/jump/jum3.png",
-    "./img/jump/jum4.png",
-    "./img/jump/jum5.png",
-    "./img/jump/jum6.png",
-  ],
-  "jump",
-  0.8
-);
-
-const characterEl = character.createCharacter();
-app.appendChild(characterEl);
-
-const handleMovement = (e) => {
+window.addEventListener("keydown", (e) => {
+  keysPressed[e.key] = true;
   switch (e.key) {
-    case "e":
-      character.move(moveRight);
+    case "ArrowRight":
+      character.characterAction("WalkRight");
+      break;
+    case "ArrowLeft":
+      character.characterAction("WalkLeft");
+      break;
+    case "a":
+      character.characterAction("Attack");
+      break;
+    case "s":
+      character.characterAction("AttackLeft");
       break;
     case "ArrowUp":
-      character.move(jump);
+      character.characterAction("Jump");
       break;
-    case "ArrowRight":
-      character.move(walkRight);
+    case "f":
+      character.characterAction("Dash");
       break;
-    default:
-      character.stop();
   }
-};
 
-window.addEventListener("keydown", (e) => handleMovement(e));
+  if (keysPressed["a"] && keysPressed["ArrowRight"]) {
+    character.characterAction("AttackMoveRight");
+  }
+});
 
-window.addEventListener("keyup", () => character.stop());
+window.addEventListener("keyup", (e) => {
+  character.characterAction("");
+  delete keysPressed[e.key];
+});
+
+character.characterAction("test");
