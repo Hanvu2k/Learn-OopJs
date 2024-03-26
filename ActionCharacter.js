@@ -15,11 +15,11 @@ class Animation {
     frame: 1,
   };
 
-  constructor(imgSrc, height, width) {
+  constructor(imgSrc, height, width, spriteWidth, spriteHeight) {
     this.CANVAS_WIDTH = this.#canvas.width = width;
     this.CANVAS_HEIGHT = this.#canvas.height = height;
-    this.spriteWidth = 1024;
-    this.spriteHeight = 830;
+    this.spriteWidth = spriteWidth;
+    this.spriteHeight = spriteHeight;
     this.img = new Image();
     this.img.src = imgSrc;
   }
@@ -68,7 +68,7 @@ class Animation {
         break;
       }
       case "Jump": {
-        this.#secondsToUpdate = 20;
+        this.#secondsToUpdate = 10;
         this.#posX += 4;
         this.#actionFrame.frame = 2;
         this.#actionFrame.frameLength = 8;
@@ -76,7 +76,7 @@ class Animation {
         break;
       }
       case "Dash": {
-        this.#secondsToUpdate = 50;
+        this.#secondsToUpdate = 10;
         this.#posX += 3;
         this.#actionFrame.frame = 3;
         this.#actionFrame.frameLength = 6;
@@ -127,7 +127,7 @@ class Animation {
   }
 }
 
-const character = new Animation("./img/spi/sprite2.png", 625, 1500);
+const character = new Animation("./img/spi/sprite2.png", 625, 1920, 1024, 835);
 character.createCharacter();
 character.start();
 
