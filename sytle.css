@@ -1,0 +1,13 @@
+drag-list {
+  border: 1px solid #eee;
+}
+
+drag-item {
+  background: #eee;
+  margin-bottom: 8px;
+  padding: 16px;
+}
+
+drag-item:last-child {
+  margin: 0;
+}
