@@ -1,13 +1,24 @@
 drag-list {
-  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  background-color: bisque;
 }
 
 drag-item {
-  background: #eee;
-  margin-bottom: 8px;
+  background: #ff6c6c;
   padding: 16px;
+  border-radius: 8px;
+  width: 60%;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
-drag-item:last-child {
-  margin: 0;
+drag-item :last-child {
+  margin-bottom: 0;
+}
+
+drag-container {
+  margin-top: 10rem;
 }
